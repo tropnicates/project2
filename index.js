@@ -6,9 +6,10 @@ const emojiField = document.querySelector(".weather3 img");
 const weatherField = document.querySelector(".weather3 span");
 const searchField = document.querySelector(".searchField");
 const form = document.querySelector("form");
+const ctx = document.getElementById('weatherChart').getContext('2d');
 
-// Default Location
-let target = "New Delhi";
+// Default Locations
+const targets = ["delhi", "mumbai", "chennai", "bangalore", "kolkata", "hyderabad"];
 let weatherData = []; // Array to hold weather data for rollups and aggregates
 
 // Define alert thresholds
@@ -17,7 +18,7 @@ const temperatureThreshold = 35; // example threshold for temperature
 // Function to fetch Data from Weather API
 const fetchData = async (target) => {
   try {
-    const apiKey = "YOUR_OPENWEATHERMAP_API_KEY";
+    const apiKey = "79b0983aa60d9fed7e88697712016f66"; // Replace with your API key
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${target}&appid=${apiKey}&units=metric`;
 
     const response = await fetch(url);
@@ -30,13 +31,18 @@ const fetchData = async (target) => {
       dt,
     } = data;
 
-    // Convert temperature values from Kelvin to Celsius (already in Celsius here)
+    // Round temperatures to nearest integer
+    const roundedTemp = Math.round(temp);
+    const roundedFeelsLike = Math.round(feels_like);
+    const roundedTempMin = Math.round(temp_min);
+    const roundedTempMax = Math.round(temp_max);
+
     // Store the weather data
     const weatherEntry = {
-      temp,
-      feels_like,
-      temp_min,
-      temp_max,
+      temp: roundedTemp,
+      feels_like: roundedFeelsLike,
+      temp_min: roundedTempMin,
+      temp_max: roundedTempMax,
       description,
       icon,
       dt: new Date(dt * 1000), // Convert Unix timestamp to Date object
@@ -44,16 +50,17 @@ const fetchData = async (target) => {
 
     weatherData.push(weatherEntry);
 
-    // Calling update Dom Function
+    // Update DOM
     updateDom(weatherEntry);
     handleRollups();
     checkAlerts();
+    updateVisualization();
   } catch (error) {
     alert("Location not found");
   }
 };
 
-// Function to update Dom
+// Function to update DOM
 function updateDom({ temp, description, icon, dt }) {
   const exactTime = dt.toLocaleTimeString();
   const exactDate = dt.toLocaleDateString();
@@ -83,7 +90,7 @@ function handleRollups() {
   }, {});
 
   for (const [date, data] of Object.entries(dailyData)) {
-    const avgTemp = data.temps.reduce((a, b) => a + b, 0) / data.temps.length;
+    const avgTemp = Math.round(data.temps.reduce((a, b) => a + b, 0) / data.temps.length);
     const maxTemp = Math.max(...data.temps);
     const minTemp = Math.min(...data.temps);
     const dominantCondition = data.conditions
@@ -91,7 +98,7 @@ function handleRollups() {
     const mostFrequentCondition = Object.keys(dominantCondition).reduce((a, b) => dominantCondition[a] > dominantCondition[b] ? a : b);
 
     console.log(`Date: ${date}`);
-    console.log(`Average Temp: ${avgTemp.toFixed(1)}°C`);
+    console.log(`Average Temp: ${avgTemp}°C`);
     console.log(`Max Temp: ${maxTemp}°C`);
     console.log(`Min Temp: ${minTemp}°C`);
     console.log(`Dominant Weather Condition: ${mostFrequentCondition}`);
@@ -107,6 +114,55 @@ function checkAlerts() {
   }
 }
 
+// Function to update visualization
+function updateVisualization() {
+  const dailyData = weatherData.reduce((acc, entry) => {
+    const date = entry.dt.toISOString().split('T')[0]; // YYYY-MM-DD
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(entry.temp);
+
+    return acc;
+  }, {});
+
+  const labels = Object.keys(dailyData);
+  const temperatures = labels.map(date => {
+    const temps = dailyData[date];
+    return Math.round(temps.reduce((a, b) => a + b, 0) / temps.length); // Average temperature
+  });
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Average Temperature',
+          data: temperatures,
+          borderColor: 'rgb(75, 192, 192)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.dataset.label}: ${context.parsed.y}°C`;
+            }
+          }
+        }
+      }
+    },
+  });
+}
+
 // Function to search the location
 function search(e) {
   e.preventDefault();
@@ -117,8 +173,14 @@ function search(e) {
 // Adding event listener to the form
 form.addEventListener("submit", search);
 
-// Fetch data every 5 minutes
-setInterval(() => fetchData(target), 5 * 60 * 1000);
+// Fetch data for all locations every 5 minutes
+const fetchAllData = async () => {
+  for (let target of targets) {
+    await fetchData(target);
+  }
+};
 
-// Initial data fetch
-fetchData(target);
+setInterval(() => fetchAllData(), 5 * 60 * 1000);
+
+// Initial data fetch for all locations
+fetchAllData();
