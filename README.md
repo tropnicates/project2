@@ -47,3 +47,8 @@ follow any of the above link on the internet you will get to know the required w
 The initial page will be like this
 
 ![image](https://github.com/user-attachments/assets/4ada23c4-d22e-40b0-aa36-64c25d0c3f70)
+
+
+When you will enter any place in the placeholder and then tap search in resultant it will show like this
+
+![image](https://github.com/user-attachments/assets/9da08aec-a6de-4ba8-acb4-1885e35cfc15)
