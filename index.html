@@ -1,36 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weather App</title>
-
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Dashboard</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <div class="weather">
-      <div class="weather1">17°</div>
-      <div class="weather2">
-        <p>Loca</p>
-        <span>11:01 - Monday 2022-06-22</span>
-      </div>
-
-      <div class="weather3">
-        <p><img src="" alt="condition" /></p>
-        <span>Condition</span>
-      </div>
+    <div class="cont">
+      <nav>
+        <form>
+          <input type="text" class="searchField" placeholder="Enter city...">
+          <button type="submit">Search</button>
+        </form>
+      </nav>
     </div>
+      <div class="weather">
+        <div class="weather1">25°C</div>
+        <div class="weather2">
+          <p>City</p>
+          <span>Time - Day   Date</span>
+        </div>
+      <div class="weather3">
+        <img src="http://cdn.weatherapi.com/weather/64x64/day/113.png" alt="Weather Icon">
+        <span>Clear</span>
+      </div>
+    <div class="chart-container">
+      <canvas id="weatherChart"></canvas>
   </div>
-
-  <nav>
-    <form>
-      <input type="text" placeholder="Search Location" class="searchField" />
-      <button type="submit">Search</button>
-    </form>
-  </nav>
-
+</div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="index.js"></script>
 </body>
 </html>

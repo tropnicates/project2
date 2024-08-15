@@ -13,45 +13,40 @@ const targets = ["delhi", "mumbai", "chennai", "bangalore", "kolkata", "hyderaba
 let weatherData = []; // Array to hold weather data for rollups and aggregates
 
 // Define alert thresholds
-const temperatureThreshold = 35; // example threshold for temperature
+const temperatureThreshold = 35; // Example threshold for temperature
+
+// Adding event listener to the form
+form.addEventListener("submit", search);
 
 // Function to fetch Data from Weather API
 const fetchData = async (target) => {
   try {
-    const apiKey = "79b0983aa60d9fed7e88697712016f66"; // Replace with your API key
-    const url = `https://api.openweathermap.org/data/2.5/weather?q=${target}&appid=${apiKey}&units=metric`;
+    const url = `https://api.weatherapi.com/v1/current.json?key=5b27a6ef3547402582e62007222306&q=${target}`;
 
     const response = await fetch(url);
     const data = await response.json();
 
     // Destructuring
     const {
-      main: { temp, feels_like, temp_min, temp_max },
-      weather: [{ description, icon }],
-      dt,
+      current: {
+        temp_c,
+        condition: { text, icon },
+      },
+      location: { name, localtime },
     } = data;
-
-    // Round temperatures to nearest integer
-    const roundedTemp = Math.round(temp);
-    const roundedFeelsLike = Math.round(feels_like);
-    const roundedTempMin = Math.round(temp_min);
-    const roundedTempMax = Math.round(temp_max);
 
     // Store the weather data
     const weatherEntry = {
-      temp: roundedTemp,
-      feels_like: roundedFeelsLike,
-      temp_min: roundedTempMin,
-      temp_max: roundedTempMax,
-      description,
-      icon,
-      dt: new Date(dt * 1000), // Convert Unix timestamp to Date object
+      temp: temp_c,
+      description: text,
+      icon: icon,
+      dt: new Date(localtime),
     };
 
     weatherData.push(weatherEntry);
 
     // Update DOM
-    updateDom(weatherEntry);
+    updateDom(temp_c, name, localtime, icon, text);
     handleRollups();
     checkAlerts();
     updateVisualization();
@@ -61,16 +56,16 @@ const fetchData = async (target) => {
 };
 
 // Function to update DOM
-function updateDom({ temp, description, icon, dt }) {
-  const exactTime = dt.toLocaleTimeString();
-  const exactDate = dt.toLocaleDateString();
-  const exactDay = dt.toLocaleDateString('en-US', { weekday: 'long' });
+function updateDom(temperate, city, time, emoji, text) {
+  const exactTime = time.split(" ")[1];
+  const exactDate = time.split(" ")[0];
+  const exactDay = getDayFullName(new Date(exactDate).getDay());
 
-  temperateField.innerText = `${temp}°C`;
-  cityField.innerText = target.charAt(0).toUpperCase() + target.slice(1);
-  dateField.innerText = `${exactTime} - ${exactDay} ${exactDate}`;
-  emojiField.src = `http://openweathermap.org/img/wn/${icon}.png`;
-  weatherField.innerText = description;
+  temperateField.innerText = `${temperate}°C`;
+  cityField.innerText = city;
+  dateField.innerText = `${exactTime} - ${exactDay}   ${exactDate}`;
+  emojiField.src = `http:${emoji}`;
+  weatherField.innerText = text;
 }
 
 // Function to handle rollups and aggregates
@@ -90,7 +85,7 @@ function handleRollups() {
   }, {});
 
   for (const [date, data] of Object.entries(dailyData)) {
-    const avgTemp = Math.round(data.temps.reduce((a, b) => a + b, 0) / data.temps.length);
+    const avgTemp = data.temps.reduce((a, b) => a + b, 0) / data.temps.length;
     const maxTemp = Math.max(...data.temps);
     const minTemp = Math.min(...data.temps);
     const dominantCondition = data.conditions
@@ -98,7 +93,7 @@ function handleRollups() {
     const mostFrequentCondition = Object.keys(dominantCondition).reduce((a, b) => dominantCondition[a] > dominantCondition[b] ? a : b);
 
     console.log(`Date: ${date}`);
-    console.log(`Average Temp: ${avgTemp}°C`);
+    console.log(`Average Temp: ${avgTemp.toFixed(1)}°C`);
     console.log(`Max Temp: ${maxTemp}°C`);
     console.log(`Min Temp: ${minTemp}°C`);
     console.log(`Dominant Weather Condition: ${mostFrequentCondition}`);
@@ -115,6 +110,8 @@ function checkAlerts() {
 }
 
 // Function to update visualization
+let chart; // Declare chart variable globally
+
 function updateVisualization() {
   const dailyData = weatherData.reduce((acc, entry) => {
     const date = entry.dt.toISOString().split('T')[0]; // YYYY-MM-DD
@@ -129,58 +126,93 @@ function updateVisualization() {
   const labels = Object.keys(dailyData);
   const temperatures = labels.map(date => {
     const temps = dailyData[date];
-    return Math.round(temps.reduce((a, b) => a + b, 0) / temps.length); // Average temperature
+    return temps.reduce((a, b) => a + b, 0) / temps.length; // Average temperature
   });
 
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'Average Temperature',
-          data: temperatures,
-          borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return `${context.dataset.label}: ${context.parsed.y}°C`;
+  const chartData = {
+    labels: labels,
+    datasets: [
+      {
+        label: 'Average Temperature',
+        data: temperatures,
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+      },
+    ],
+  };
+
+  if (chart) {
+    // Update existing chart
+    chart.data = chartData;
+    chart.update();
+  } else {
+    // Create new chart
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: chartData,
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}°C`;
+              }
             }
           }
         }
-      }
-    },
-  });
+      },
+    });
+  }
 }
 
 // Function to search the location
 function search(e) {
   e.preventDefault();
-  target = searchField.value.toLowerCase();
-  fetchData(target);
+
+  const target = searchField.value.trim().toLowerCase();
+  
+  if (target) {
+    fetchData(target);
+  } else {
+    alert("Please enter a valid location.");
+  }
 }
 
-// Adding event listener to the form
-form.addEventListener("submit", search);
+// Function to get the name of day
+function getDayFullName(num) {
+  switch (num) {
+    case 0:
+      return "Sunday";
+    case 1:
+      return "Monday";
+    case 2:
+      return "Tuesday";
+    case 3:
+      return "Wednesday";
+    case 4:
+      return "Thursday";
+    case 5:
+      return "Friday";
+    case 6:
+      return "Saturday";
+    default:
+      return "Don't Know";
+  }
+}
 
 // Fetch data for all locations every 5 minutes
 const fetchAllData = async () => {
+  weatherData = []; // Clear existing data
   for (let target of targets) {
     await fetchData(target);
   }
 };
 
-setInterval(() => fetchAllData(), 5 * 60 * 1000);
+setInterval(fetchAllData, 5 * 60 * 1000);
 
 // Initial data fetch for all locations
 fetchAllData();

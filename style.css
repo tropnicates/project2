@@ -1,74 +1,40 @@
 @import url("https://fonts.googleapis.com/css2?family=Economica&family=Grape+Nuts&family=Roboto:wght@100;300;400;700;900&display=swap");
 
 * {
-  margin: 0%;
+  margin: 0;
   padding: 0;
+  box-sizing: border-box;
   font-family: "Roboto", sans-serif;
 }
 
-.container {
-  width: 100%;
-  height: 100vh;
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* height: 100vh; */
   background-color: black;
+}
+
+.cont {
+  margin-top: 1rem;
+  width: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
-}
-
-.container::before {
-  content: "";
-  width: 100%;
-  height: 100%;
-  background-image: url("./bg.png");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  position: absolute;
-  opacity: 0.4;
-}
-
-.weather {
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  color: white;
-}
-
-.weather > div {
-  margin: 0.625rem;
-}
-
-.weather1 {
-  font-size: 4rem;
-}
-
-.weather p {
-  font-size: 2rem;
-}
-
-.weather span {
-  font-size: 0.75rem;
-}
-
-.weather3 span {
-  margin: 0.3rem;
-}
-
-.weather3 img {
-  width: 2rem;
+  margin-bottom: 2rem;
 }
 
 nav {
-  height: 100px;
-  border-radius: 100px 100px 0 0;
-  padding: 1rem 0;
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 500px;
+  padding: 1rem;
+  border-radius: 10px;
   background-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
 }
 
 nav form {
   display: flex;
-  align-items: center;
   justify-content: center;
 }
 
@@ -81,6 +47,7 @@ nav form button {
   padding: 0.75rem;
   margin: 0.3rem;
   outline: none;
+  font-size: 1rem;
 }
 
 nav form input {
@@ -99,4 +66,63 @@ nav form button:hover {
   background-color: white;
   color: black;
   transition: all 0.3s ease;
+}
+
+.weather {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-radius: 10px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+  margin-bottom: 2rem;
+}
+
+.weather1 {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.weather2 p {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.weather2 span {
+  font-size: 1rem;
+}
+
+.weather3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.weather3 img {
+  width: 2.5rem;
+  margin-right: 0.5rem;
+}
+
+.weather3 span {
+  font-size: 1.5rem;
+}
+
+.chart-container {
+  width: 100%;
+  max-width: 500px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+}
+
+#weatherChart {
+  width: 100%;
+  height: 300px;
 }
