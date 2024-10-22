@@ -222,3 +222,52 @@ nav form button:hover {
 .alert-danger {
   color: #ff4500;
 }
+
+
+.chart-container {
+  width: 100%;
+  max-width: 43.75rem;
+  background-color: rgba(255, 255, 255, 0.15);
+  padding: 1.5rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.6);
+  border-radius: 0.625rem;
+  margin-bottom: 2rem;
+  position: relative;
+  cursor: pointer;
+  /* Add these properties */
+  overflow: hidden; /* Ensure no overflow */
+  flex-grow: 1; /* Allow it to grow in flex container */
+}
+
+#weatherChart {
+  width: 100%;  /* Ensure the chart takes full width */
+  height: auto; /* Change height to auto for responsiveness */
+  max-height: 300px; /* Set a max height to avoid excessive scaling */
+}
+
+/* Media queries for smaller screens */
+@media (max-width: 768px) {
+  .chart-container {
+    padding: 1rem; /* Adjust padding for smaller screens */
+  }
+
+  #weatherChart {
+    max-height: 200px; /* Decrease max height on smaller screens */
+  }
+
+  .weather1 {
+    font-size: 2.5rem; /* Adjust font size for smaller screens */
+  }
+
+  .weather2 p {
+    font-size: 1.5rem; /* Adjust font size for smaller screens */
+  }
+
+  .weather2 span {
+    font-size: 1rem; /* Adjust font size for smaller screens */
+  }
+
+  .weather3 span {
+    font-size: 1.2rem; /* Adjust font size for smaller screens */
+  }
+}
