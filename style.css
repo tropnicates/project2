@@ -252,7 +252,7 @@ nav form button:hover {
   }
 
   #weatherChart {
-    max-height: 200px; /* Decrease max height on smaller screens */
+    max-height: 500px; /* Decrease max height on smaller screens */
   }
 
   .weather1 {
